@@ -10,6 +10,8 @@ from langchain.tools import tool
 from langchain_core.messages import HumanMessage
 from langchain_groq import ChatGroq
 
+from review_api import get_product_rating, get_ratings_for_products
+
 load_dotenv()
 
 DB_PATH = os.path.join(os.path.dirname(__file__), "store.db")
@@ -18,8 +20,6 @@ llm = ChatGroq(
     model="qwen/qwen3-32b",
     temperature=0
 )
-
-
 
 # ---------------------------
 # TOOLS
@@ -70,4 +70,13 @@ def search_products(query: str, max_price: Optional[float] = None, is_organic: O
         for row in rows
     ]
     return json.dumps(products)
+
+@tool
+def get_rating(product_id: int) -> dict:
+    """
+    Get the average customer rating and total review count for a product by its ID.
+    Returns a JSON object with: product_id, average_rating, review_count.
+    """
+    result = get_product_rating(product_id)
+    return json.dumps(result)
 
